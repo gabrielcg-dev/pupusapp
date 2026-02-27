@@ -1,24 +1,9 @@
-// Datos de prueba (luego vendrán del backend)
-const pupuserias = [
-  { id: 1, nombre: "La Abuela", ciudad: "San Salvador", calificacion: 4.8 },
-  { id: 2, nombre: "El Comal Feliz", ciudad: "Santa Tecla", calificacion: 4.5 },
-  {
-    id: 3,
-    nombre: "Pupusas Doña Carmen",
-    ciudad: "Soyapango",
-    calificacion: 4.9,
-  },
-  {
-    id: 4,
-    nombre: "La Pupusería del Centro",
-    ciudad: "San Miguel",
-    calificacion: 4.3,
-  },
-];
-
 // Agarramos los elementos del HTML
 const lista = document.getElementById("lista-pupuserias");
 const buscador = document.getElementById("buscador");
+
+// Guardamos todas las pupuserías para el buscador
+let todasLasPupuserias = [];
 
 // Función que dibuja las tarjetas
 function mostrarPupuserias(datos) {
@@ -40,14 +25,29 @@ function mostrarPupuserias(datos) {
   });
 }
 
+// Pedimos los datos al backend
+async function cargarPupuserias() {
+  try {
+    lista.innerHTML = "<p>Cargando...</p>";
+    const respuesta = await fetch("http://localhost:3000/pupuserias");
+    const datos = await respuesta.json();
+    todasLasPupuserias = datos;
+    mostrarPupuserias(datos);
+  } catch (error) {
+    lista.innerHTML =
+      "<p>Error al cargar las pupuserías. ¿Está corriendo el servidor?</p>";
+    console.log("Error:", error);
+  }
+}
+
 // Buscador en tiempo real
 buscador.addEventListener("input", function () {
   const termino = buscador.value.toLowerCase();
-  const filtradas = pupuserias.filter(function (p) {
+  const filtradas = todasLasPupuserias.filter(function (p) {
     return p.nombre.toLowerCase().includes(termino);
   });
   mostrarPupuserias(filtradas);
 });
 
-// Mostramos las pupuserías al cargar
-mostrarPupuserias(pupuserias);
+// Iniciamos cargando las pupuserías
+cargarPupuserias();
